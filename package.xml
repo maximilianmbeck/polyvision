@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>beamdatagenerator</name>
+  <name>polyvision</name>
   <version>0.0.0</version>
   <description>Polygon intersection and offsetting operations for visible area calculations</description>
 
