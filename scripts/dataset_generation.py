@@ -1,7 +1,7 @@
 # -*- coding: latin-1 -*-
 import numpy as np
 
-from beamdatagenerator.beamdata import generate_deltapose_dataset
+from polyvision.beamdata import generate_deltapose_dataset
 
 
 def main():

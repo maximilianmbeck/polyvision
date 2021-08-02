@@ -8,7 +8,7 @@ from matplotlib.transforms import Affine2D
 from matplotlib.patches import Polygon, PathPatch
 from matplotlib.path import Path
 from matplotlib.collections import PatchCollection
-from beamdatagenerator_pyapi import VisibleArea
+from polyvision_pyapi import VisibleArea
 
 
 def affineTransformationOfPoylgonList(polylist, angle, offset, precision=-1):
@@ -104,14 +104,6 @@ class SensorPlatform(object):
             visA.getNonVisibleAreas(),
         ]
         return results
-
-    def getSensorBeamReadings(self, perceptedPolygons):
-        # create sensor beam object for calculations
-
-        # calculate sensor beam readings
-
-        # returns readings as array
-        pass
 
     def getVisibilityBorder(self, perceptedPolygons, centerline):
         # create visibleArea object for calculations

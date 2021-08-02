@@ -2,54 +2,10 @@
 
 import numpy as np
 
-from beamdatagenerator_pyapi import BeamDataGenerator
-from beamdatagenerator.visualization import (
-    generatePolygonPatchCollection,
-    BeamDataVisualizer,
-)
-from beamdatagenerator.sensorabstraction import generate_beam_dir_vecs
-from beamdatagenerator.params import deltapose_dataset_params
-
-
-class BeamDataProcessor(object):
-    """Python wrapper for C++ BeamDataGenerator."""
-
-    def __init__(self, world_bounds, obstacles, beam_dirs, beam_angles):
-        self._beam_angles = beam_angles
-        self._bdg = BeamDataGenerator(world_bounds, obstacles, beam_dirs)
-
-    @property
-    def beam_angles(self):
-        return self._beam_angles
-
-    @property
-    def world_bounds(self):
-        return self._bdg.getWorldBounds()
-
-    @property
-    def obstacles(self):
-        return self._bdg.getObstacles()
-
-    def is_point_in_world(self, point):
-        """point: ndarray (1x2)"""
-        return self._bdg.isPointInWorld(point)
-
-    def is_point_in_obstacles(self, point):
-        """point: ndarray (1x2)"""
-        return self._bdg.isPointInObstacles(point)
-
-    def get_sensorbeamreadings_at_pose(self, pos, theta):
-        """pos: ndarray (1x2)
-        Returns:
-        intersects (intersection points): ndarray (num_beams x 2)
-        readings (distances to intersection points): ndarray (num_beams,)
-        angles (in rad): ndarray (num_beams,) """
-        intersects = self._bdg.getSensorbeamIntersectPointsAtPose(pos, theta)
-        # calculate distances from pos to intersects
-        readings = np.linalg.norm(intersects - pos, ord=2, axis=1)
-
-        return intersects, readings, self.beam_angles
-
+from polyvision.beams.beamdata_processor import BeamDataProcessor
+from polyvision.beams.beamdata_visualizer import generatePolygonPatchCollection, BeamDataVisualizer
+from polyvision.sensorabstraction import generate_beam_dir_vecs
+from polyvision.beams.params import deltapose_dataset_params
 
 class BeamDatasetGenerator_deltapose(object):
     """This class generates a dataset for learning the deltas between two poses."""
@@ -161,7 +117,7 @@ class BeamDatasetGenerator_deltapose(object):
         return X, y
 
 
-def generate_deltapose_dataset(datasetsize=None):
+def generate_deltapose_dataset(datasetsize=None, path_from_home_dir="phd/data/slam"):
     params = deltapose_dataset_params
     dataset_gen = BeamDatasetGenerator_deltapose(params)
 
@@ -185,7 +141,7 @@ def generate_deltapose_dataset(datasetsize=None):
 
 
     home_path = os.path.expanduser("~")
-    slam_data_path = os.path.join(home_path, "phd/data/slam")
+    slam_data_path = os.path.join(home_path, path_from_home_dir)
 
     folder_name = "slam_data_obs_{0}{1}_seed{2}".format(
         params["obstacles_gen"]["obs_type"],
