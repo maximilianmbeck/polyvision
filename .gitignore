@@ -1,0 +1,4 @@
+.vscode
+*.pyc
+*.pyo
+*.cpython-38.pyc
