@@ -66,7 +66,7 @@ class BeamDataVisualizer(object):
         ax.plot(pos[0], pos[1], marker='x', color='red', zorder=10.1, ms=5)
         
 
-    def ax_plot_beams_at_pose(self, ax, beam_data_processor, pos, theta):
+    def ax_plot_beams_at_pose(self, ax_world, ax_contour, beam_data_processor, pos, theta):
         # plot beams
         (
             intersects,
@@ -74,9 +74,13 @@ class BeamDataVisualizer(object):
             angles,
         ) = beam_data_processor.get_sensorbeamreadings_at_pose(pos, theta)
 
-        for i in range(len(readings)):
-            ax.plot([pos[0], intersects[i, 0]], [pos[1], intersects[i, 1]], color="b")
-            ax.plot(intersects[i, 0], intersects[i, 1], "o", ms=6, color="y")
+        if ax_world is not None:
+            for i in range(len(readings)):
+                ax_world.plot([pos[0], intersects[i, 0]], [pos[1], intersects[i, 1]], color="b")
+                ax_world.plot(intersects[i, 0], intersects[i, 1], "o", ms=6, color="y")
+
+        if ax_contour is not None:
+            ax_contour.plot(angles, readings)
 
     def plot_world_with_beams_at_pose(self, beam_data_processor, pos, theta, seed, num_obs):
         self.ax_plot_world_with_beams_at_pose(self._ax, beam_data_processor, pos, theta, seed, num_obs)
@@ -84,7 +88,7 @@ class BeamDataVisualizer(object):
 
     def ax_plot_world_with_beams_at_pose(self, ax, beam_data_processor, pos, theta, seed, num_obs):
         self.ax_plot_world(ax, beam_data_processor, seed, num_obs)
-        self.ax_plot_beams_at_pose(ax, beam_data_processor, pos, theta)
+        self.ax_plot_beams_at_pose(ax, None, beam_data_processor, pos, theta)
         self.ax_plot_pose(ax, pos, theta)
 
 

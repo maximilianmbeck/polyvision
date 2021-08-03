@@ -4,7 +4,7 @@ import numpy as np
 from polyvision_pyapi import BeamDataGenerator
 from polyvision.beams.beamdata_visualizer import BeamDataVisualizer
 from polyvision.sensorabstraction import generate_beam_dir_vecs
-from polyvision.beams.beamdataset_generator import BeamDataProcessor, plot_readings_at_pose, generate_random_rectangles
+from polyvision.beams.beamdataset_generator import BeamDataProcessor, generate_random_rectangles, load_deltapose_dataset
 
 def testBeamDataProcessor():
     # old params: 70, 5
@@ -25,9 +25,12 @@ def testBeamDataProcessor():
     print(readings)
     print(np.rad2deg(angles))
 
-    # plot_readings_at_pose(bdp, pos, theta, seed, num_obs)
     bdv = BeamDataVisualizer()
     bdv.plot_world_with_beams_at_pose(bdp, pos, theta, seed, num_obs)
+
+def testBeamDatasetLoader():
+    dataset, params = load_deltapose_dataset('/home/max/phd/data/slam', 'slam_data_obs_rect10_seed1234')
+    bdp = BeamDataProcessor.create_from_params(params)
 
 
 def testBeamDataGenerator():
@@ -54,3 +57,7 @@ def testBeamDataGenerator():
 if __name__ == "__main__":
     # testBeamDataGenerator()
     testBeamDataProcessor()
+    testBeamDatasetLoader()
+
+
+

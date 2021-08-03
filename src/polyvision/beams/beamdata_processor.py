@@ -7,6 +7,28 @@ from polyvision_pyapi import BeamDataGenerator
 class BeamDataProcessor(object):
     """Python wrapper for C++ BeamDataGenerator."""
 
+    @staticmethod
+    def create_from_params(params_dict):
+        from polyvision.sensorabstraction import generate_beam_dir_vecs
+        from polyvision.beams.beamdataset_generator import generate_random_rectangles
+        opening_angle = params_dict['sensorbeams']['opening_angle']
+        num_beams = params_dict['sensorbeams']['num_beams']
+
+        beam_dirs, beam_angles = generate_beam_dir_vecs(
+            opening_angle, num_beams, direction_angle=0)
+
+        world_bounds = np.array(params_dict['world_bounds'])
+        seed_obs = params_dict['obstacles_gen']['seed']
+        num_obs = params_dict['obstacles_gen']['num']
+        w_mean, w_std, h_mean, h_std = params_dict['obstacles_gen']['width_mean'], params_dict['obstacles_gen'][
+            'width_std'], params_dict['obstacles_gen']['height_mean'], params_dict['obstacles_gen']['height_std']
+        obs_type = params_dict["obstacles_gen"]["obs_type"]
+        if obs_type == "rect":
+            rects = generate_random_rectangles(num_obs, w_mean, w_std, h_mean, h_std, world_bounds, seed_obs)
+            obstacles = rects
+
+        return BeamDataProcessor(world_bounds, obstacles, beam_dirs, beam_angles)
+
     def __init__(self, world_bounds, obstacles, beam_dirs, beam_angles):
         self._beam_angles = beam_angles
         self._bdg = BeamDataGenerator(world_bounds, obstacles, beam_dirs)

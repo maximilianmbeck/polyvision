@@ -7,6 +7,90 @@ from polyvision.beams.beamdata_visualizer import generatePolygonPatchCollection,
 from polyvision.sensorabstraction import generate_beam_dir_vecs
 from polyvision.beams.params import deltapose_dataset_params
 
+def load_deltapose_dataset(path_to_dataset_folder, dataset_name):
+    from pathlib import Path
+    import json
+    import pickle
+
+    print('here')
+    dataset_path = Path(path_to_dataset_folder) / dataset_name
+    print(dataset_path.is_dir())
+
+    # load params
+    params_path = dataset_path / 'params.json'
+    with params_path.open() as f:
+        params = json.load(f)
+
+    # load dataset 
+    datasetfile_path = dataset_path / str(dataset_name+'.pickle')
+    with datasetfile_path.open(mode='rb') as f:
+        dataset = pickle.load(f)
+
+    return dataset, params
+
+def generate_deltapose_dataset(datasetsize=None, path_from_home_dir=""):
+    params = deltapose_dataset_params
+    dataset_gen = BeamDatasetGenerator_deltapose(params)
+
+    X, y, angles = dataset_gen.generate_dataset(datasetsize)
+
+    print(X.shape)
+    print(y.shape)
+    print(angles.shape)
+    dataset = {"X": X, "y": y, "X_columns": angles}
+
+    import os
+    import pathlib
+    import matplotlib.pyplot as plt
+
+    home_path = os.path.expanduser("~")
+    slam_data_path = os.path.join(home_path, path_from_home_dir)
+
+    folder_name = "slam_data_obs_{0}{1}_seed{2}".format(
+        params["obstacles_gen"]["obs_type"],
+        params["obstacles_gen"]["num"],
+        params["obstacles_gen"]["seed"],
+    )
+    pathlib.Path(slam_data_path + "/" + folder_name).mkdir(parents=True, exist_ok=True)
+
+    slam_dataset_path = pathlib.Path(slam_data_path) / folder_name
+
+    # save plots
+    fig, ax = plt.subplots()
+    
+    # plot1: world visualization
+    dataset_gen.beam_data_visualizer.ax_plot_world(ax, 
+        dataset_gen._beam_data_processor, params["obstacles_gen"]["seed"], params["obstacles_gen"]["num"]
+    )
+    fig.savefig(slam_data_path+'/'+folder_name+'/world.png')
+
+    ax.clear()
+    # plot2: pose visualization
+    pos = np.array([5,3])
+    theta = np.deg2rad(90)
+    dataset_gen.beam_data_visualizer.ax_plot_world_with_beams_at_pose(ax,
+        dataset_gen._beam_data_processor, pos, theta, params["obstacles_gen"]["seed"], params["obstacles_gen"]["num"]
+    )
+    fig.savefig(slam_data_path+'/'+folder_name+'/world_beam.png')
+
+    save_dataset(dataset, slam_dataset_path, folder_name)
+    save_params(params, slam_dataset_path)
+
+    return X, y, angles
+
+def save_dataset(dataset, path, filename):
+    import pickle
+    with open(path.joinpath(filename + ".pickle"), "wb") as f:
+        pickle.dump(dataset, f)
+
+def save_params(params, path): 
+    import json
+    # save parameters
+    params["world_bounds"] = params["world_bounds"].tolist()
+
+    with open(path.joinpath("params.json"), "w") as f:
+        json.dump(params, f, ensure_ascii=False, indent=4)
+
 class BeamDatasetGenerator_deltapose(object):
     """This class generates a dataset for learning the deltas between two poses."""
 
@@ -23,29 +107,7 @@ class BeamDatasetGenerator_deltapose(object):
         return BeamDataVisualizer(ax)
 
     def _create_beam_data_processor(self):
-        # world bounds
-        world_bounds = self._params["world_bounds"]
-        # obstacles
-        seed_obs = self._params["obstacles_gen"]["seed"]
-        num_obs = self._params["obstacles_gen"]["num"]
-        w_m = self._params["obstacles_gen"]["width_mean"]
-        w_std = self._params["obstacles_gen"]["width_std"]
-        h_m = self._params["obstacles_gen"]["height_mean"]
-        h_std = self._params["obstacles_gen"]["height_std"]
-        obs_type = self._params["obstacles_gen"]["obs_type"]
-        if obs_type == "rect":
-            obstacles = generate_random_rectangles(
-                num_obs, w_m, w_std, h_m, h_std, world_bounds, seed_obs
-            )
-        pass
-        # beams
-        opening_angle = self._params["sensorbeams"]["opening_angle"]
-        num_beams = self._params["sensorbeams"]["num_beams"]
-        beam_dirs, beam_angles = generate_beam_dir_vecs(opening_angle, num_beams)
-
-        # BeamDataProcessor
-        bdp = BeamDataProcessor(world_bounds, obstacles, beam_dirs, beam_angles)
-        return bdp
+        return BeamDataProcessor.create_from_params(self._params)
 
     def generate_dataset(self, datasetsize=None):
         # random number generator dataset samples
@@ -115,77 +177,6 @@ class BeamDatasetGenerator_deltapose(object):
         X[1, :] = readings1
 
         return X, y
-
-
-def generate_deltapose_dataset(datasetsize=None, path_from_home_dir="phd/data/slam"):
-    params = deltapose_dataset_params
-    dataset_gen = BeamDatasetGenerator_deltapose(params)
-
-    X, y, angles = dataset_gen.generate_dataset(datasetsize)
-
-    # print(X, X.shape)
-    # print(y, y.shape)
-    # print(angles, angles.shape)
-
-    print(X.shape)
-    print(y.shape)
-    print(angles.shape)
-    dataset = {"X": X, "y": y, "X_columns": angles}
-
-    import os
-    import pathlib
-    import json
-    import pickle
-    import matplotlib.pyplot as plt
-
-
-
-    home_path = os.path.expanduser("~")
-    slam_data_path = os.path.join(home_path, path_from_home_dir)
-
-    folder_name = "slam_data_obs_{0}{1}_seed{2}".format(
-        params["obstacles_gen"]["obs_type"],
-        params["obstacles_gen"]["num"],
-        params["obstacles_gen"]["seed"],
-    )
-    pathlib.Path(slam_data_path + "/" + folder_name).mkdir(parents=True, exist_ok=True)
-
-    slam_dataset_path = pathlib.Path(slam_data_path) / folder_name
-
-    # save plots
-    fig, ax = plt.subplots()
-    
-    # world visualisation
-    dataset_gen.beam_data_visualizer.ax_plot_world(ax, 
-        dataset_gen._beam_data_processor, params["obstacles_gen"]["seed"], params["obstacles_gen"]["num"]
-    )
-
-    fig.savefig(slam_data_path+'/'+folder_name+'/world.png')
-
-    ax.clear()
-
-    pos = np.array([5,3])
-    theta = np.deg2rad(90)
-    dataset_gen.beam_data_visualizer.ax_plot_world_with_beams_at_pose(ax,
-        dataset_gen._beam_data_processor, pos, theta, params["obstacles_gen"]["seed"], params["obstacles_gen"]["num"]
-    )
-
-    fig.savefig(slam_data_path+'/'+folder_name+'/world_beam.png')
-
-
-
-    # save dataset
-    with open(slam_dataset_path.joinpath(folder_name + ".pickle"), "wb") as f:
-        pickle.dump(dataset, f)
-
-    # save parameters
-    params["world_bounds"] = str(params["world_bounds"])
-
-    with open(slam_dataset_path.joinpath("params.json"), "w") as f:
-        json.dump(params, f, ensure_ascii=False, indent=4)
-
-    return X, y, angles
-
 
 def pose_delta(pose0, pose1):
     """pose: tuple(np.ndarray,theta)"""
@@ -278,48 +269,3 @@ def generate_random_rectangles(
         rects.append(rect)
 
     return rects
-
-
-def plot_readings_at_pose(beam_data_processor, pos, theta, seed, num_obs):
-    import matplotlib.pyplot as plt
-    from matplotlib.patches import Polygon
-
-    fig, ax = plt.subplots()
-    plt.cla()
-
-    world_bounds = beam_data_processor.world_bounds
-    # ax limits
-    xlim_lower = np.min(world_bounds[:, 0]) - 1
-    xlim_upper = np.max(world_bounds[:, 0]) + 1
-    ylim_lower = np.min(world_bounds[:, 1]) - 1
-    ylim_upper = np.max(world_bounds[:, 1]) + 1
-
-    ax.set_xlim(xlim_lower, xlim_upper)
-    ax.set_ylim(ylim_lower, ylim_upper)
-    ax.set_aspect("equal")
-
-    # plot world bounds
-    wb_patch = Polygon(
-        world_bounds, facecolor="None", edgecolor="black", linewidth=3, zorder=-1
-    )
-    ax.add_patch(wb_patch)
-
-    # plot obstacles
-    obstacles = beam_data_processor.obstacles
-    obs_patch = generatePolygonPatchCollection(obstacles, "red", 1.0)
-    ax.add_collection(obs_patch)
-
-    # plot beams
-    intersects, readings, angles = beam_data_processor.get_sensorbeamreadings_at_pose(
-        pos, theta
-    )
-
-    for i in range(len(readings)):
-        ax.plot([pos[0], intersects[i, 0]], [pos[1], intersects[i, 1]], color="b")
-        ax.plot(intersects[i, 0], intersects[i, 1], "o", ms=6, color="y")
-
-    # set title
-    ax.set_title("num_obstacles={0}, seed={1}".format(num_obs, seed))
-
-    plt.show()
-
