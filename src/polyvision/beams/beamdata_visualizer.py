@@ -51,7 +51,8 @@ class BeamDataVisualizer(object):
         # generate triangle points
         angles = np.array([np.deg2rad(0), np.deg2rad(120), np.deg2rad(240)])
         points = np.array([np.cos(angles), np.sin(angles)])
-        points = points * scale
+        points[0] = points[0] * scale
+        points[1:3] = points[1:3] * 0.5 * scale
         # transform triangle points to pose
         c = np.cos(theta)
         s = np.sin(theta)
@@ -140,9 +141,31 @@ class BeamDataVisualizer(object):
             ax.hist(np.rad2deg(y[sample_indices,pose_index,2]), bins=n_bins,color=c)
         ax.set_title('num_angles={0}'.format(len(sample_indices)))
 
-    def ax_plot_beam_samples(self, ax, X, y):
-        pass
+    def plot_beam_samples(self, beam_data_processor, X, y, sample_indices, first_pose=True):
+        fig, ax = plt.subplots()
+        self.ax_plot_beam_samples(ax, beam_data_processor, X, y, sample_indices, first_pose)
+        plt.show()
 
+    def ax_plot_beam_samples(self, ax, beam_data_processor, X, y, sample_indices, first_pose=True):
+        if first_pose:
+            pose_index = 1
+            x_readings_ind = 0
+        else:
+            pose_index = 2
+            x_readings_ind = 1
+
+        for i in range(len(sample_indices)):
+            readings = X[sample_indices[i],x_readings_ind,:]
+            pos = y[sample_indices[i], pose_index, 0:2]
+            theta = y[sample_indices[i], pose_index, 2]
+            points = beam_data_processor.convert_readings_to_cartesian(readings, pos, theta)
+            ax.plot(points[:,0], points[:,1], 'o', ms=1, color='y')
+            # ax.plot(pos[0], pos[1], '.', ms=2, color='b')
+            self.ax_plot_pose(ax, pos, theta, scale=0.15)
+
+        ax.set_title('num_pose_samples={0}'.format(len(sample_indices)))
+
+        
 def generatePolygonPatchCollection(listOfNumpyPolygons, colorV="blue", alphaV=0.4):
     polygons = []
     for p in listOfNumpyPolygons:

@@ -26,10 +26,12 @@ def testBeamDataProcessor():
     print(np.rad2deg(angles))
 
     # convert readings to cartesian
-    points = bdp.convert_readings_to_cartesian(readings, angles, pos, theta)
+    points = bdp.convert_readings_to_cartesian(readings, pos, theta, angles)
     print(points)
 
     bdv = BeamDataVisualizer()
+    bdv.plot_world_with_beams_at_pose(bdp, pos, theta, seed, num_obs)
+
     bdv.plot_world_with_beams_at_pose_and_contour(bdp, pos, theta, seed, num_obs)
 
 def testBeamDatasetLoader():
@@ -43,8 +45,7 @@ def testBeamDatasetLoader():
     # bdv.plot_world_with_single_position_samples(bdp, y, range(0,5000), seed, num_obs)
     # bdv.plot_angle_distribution(y, range(0,5000))
 
-
-
+    bdv.plot_beam_samples(bdp, X, y, range(10))
 
 def testBeamDataGenerator():
     beamDirs, beamAngles = generate_beam_dir_vecs(70, 5, directionAngle=0)
@@ -70,7 +71,7 @@ def testBeamDataGenerator():
 if __name__ == "__main__":
     # testBeamDataGenerator()
     testBeamDataProcessor()
-    # testBeamDatasetLoader()
+    testBeamDatasetLoader()
 
 
 

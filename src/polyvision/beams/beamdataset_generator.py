@@ -29,6 +29,47 @@ def load_deltapose_dataset(path_to_dataset_folder, dataset_name):
 
     return X, y, X_col_angles, params
 
+def visualize_dataset(path_to_dataset_folder, dataset_name):
+    import matplotlib.pyplot as plt
+
+    X, y, X_col_angles, params = load_deltapose_dataset(path_to_dataset_folder, dataset_name)
+    bdp = BeamDataProcessor.create_from_params(params)
+    bdv = BeamDataVisualizer()
+
+    # plot world with single position samples
+    print('plot world with single position samples..')
+    seed = params['obstacles_gen']['seed']
+    num_obs = params['obstacles_gen']['num']
+    fig, (ax0, ax1) = plt.subplots(1,2)
+    bdv.ax_plot_world(ax0, bdp, seed, num_obs)
+    bdv.ax_plot_single_position_samples(ax0, y, range(0,5000), first_pose=True)
+    bdv.ax_plot_world(ax1, bdp, seed, num_obs)
+    bdv.ax_plot_single_position_samples(ax1, y, range(0,5000), first_pose=False)
+    fig.savefig(path_to_dataset_folder+'/'+dataset_name+'/position_distribution_all_samples.png')
+    ax0.clear()
+    ax1.clear()
+    print('plot world with single position samples.. ..done!')
+    # plot angle distribution
+    print('plot angle distribution..')
+    fig, ax = plt.subplots()
+    bdv.ax_plot_angle_distribution(ax, y, range(5000))
+    fig.savefig(path_to_dataset_folder+'/'+dataset_name+'/angle_distribution_all_samples.png')
+    ax.clear()
+    print('plot angle distribution.. ..done!')
+
+    # plot beam samples
+    print('plot beam samples..')
+    num_samples = [10, 50, 100, 500, 1000]
+    for n in num_samples:
+        print('plot beam samples..', n)
+        fig, (ax0, ax1) = plt.subplots(1,2)
+        bdv.ax_plot_world(ax0, bdp, seed, num_obs)
+        bdv.ax_plot_beam_samples(ax1, bdp, X, y, range(n))
+        fig.savefig(path_to_dataset_folder+'/'+dataset_name+'/datapoints_num_samples{0}.png'.format(n))
+        ax0.clear()
+        ax1.clear()   
+    print('plot beam samples.. ..done!')
+
 def generate_deltapose_dataset(datasetsize=None, path_from_home_dir=""):
     params = deltapose_dataset_params
     dataset_gen = BeamDatasetGenerator_deltapose(params)
@@ -64,8 +105,8 @@ def generate_deltapose_dataset(datasetsize=None, path_from_home_dir=""):
         dataset_gen._beam_data_processor, params["obstacles_gen"]["seed"], params["obstacles_gen"]["num"]
     )
     fig.savefig(slam_data_path+'/'+folder_name+'/world.png')
-
     ax.clear()
+    
     # plot2: pose visualization
     pos = np.array([5,3])
     theta = np.deg2rad(90)

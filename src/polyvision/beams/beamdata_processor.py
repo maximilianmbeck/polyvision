@@ -1,6 +1,7 @@
 # -*- coding: latin-1 -*-
 
 import numpy as np
+from numpy.lib.function_base import angle
 from polyvision_pyapi import BeamDataGenerator
 
 
@@ -65,7 +66,9 @@ class BeamDataProcessor(object):
 
         return intersects, readings, self.beam_angles
 
-    def convert_readings_to_cartesian(self, readings, angles, pos, theta):
+    def convert_readings_to_cartesian(self, readings, pos, theta, angles=None):
+        if angles is None:
+            angles = self._beam_angles
         rot_angles = angles+theta
         dir_vecs = np.transpose(np.array([np.cos(rot_angles), np.sin(rot_angles)]))
         points = dir_vecs * readings.reshape(-1,1) + pos
