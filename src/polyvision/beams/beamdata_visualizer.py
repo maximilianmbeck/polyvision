@@ -52,7 +52,6 @@ class BeamDataVisualizer(object):
         angles = np.array([np.deg2rad(0), np.deg2rad(120), np.deg2rad(240)])
         points = np.array([np.cos(angles), np.sin(angles)])
         points = points * scale
-        # points[] # TODO from here
         # transform triangle points to pose
         c = np.cos(theta)
         s = np.sin(theta)
@@ -113,16 +112,36 @@ class BeamDataVisualizer(object):
         plt.show()
 
 
-    def ax_plot_single_position_samples(self, ax, y, indices, first_pose=True):
+    def ax_plot_single_position_samples(self, ax, y, sample_indices, first_pose=True):
         if first_pose:
             pose_index = 1 # row in the sample
             c = 'b'
         else:
             pose_index = 2 # row in the sample
             c = 'g'
-        for ind in indices:
-            ax.plot(y[indices,pose_index,0], y[indices,pose_index,1], '.', ms=2, color=c)
-        ax.set_title('num_positions_samples={0}'.format(len(indices)))
+        for ind in sample_indices:
+            ax.plot(y[sample_indices,pose_index,0], y[sample_indices,pose_index,1], '.', ms=2, color=c)
+        ax.set_title('num_position_samples={0}'.format(len(sample_indices)))
+
+    def plot_angle_distribution(self, y, sample_indices, n_bins=18):
+        fig, (ax0, ax1) = plt.subplots(1,2)
+        self.ax_plot_angle_distribution(ax0, y, sample_indices, first_pose=True, n_bins=18)
+        self.ax_plot_angle_distribution(ax1, y, sample_indices, first_pose=False, n_bins=18)
+        plt.show()
+
+    def ax_plot_angle_distribution(self, ax, y, sample_indices, first_pose=True, n_bins=18):
+        if first_pose:
+            pose_index = 1 # row in the sample
+            c = 'b'
+        else:
+            pose_index = 2 # row in the sample
+            c = 'g'
+        for ind in sample_indices:
+            ax.hist(np.rad2deg(y[sample_indices,pose_index,2]), bins=n_bins,color=c)
+        ax.set_title('num_angles={0}'.format(len(sample_indices)))
+
+    def ax_plot_beam_samples(self, ax, X, y):
+        pass
 
 def generatePolygonPatchCollection(listOfNumpyPolygons, colorV="blue", alphaV=0.4):
     polygons = []

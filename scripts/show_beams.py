@@ -8,7 +8,7 @@ from polyvision.beams.beamdataset_generator import BeamDataProcessor, generate_r
 
 def testBeamDataProcessor():
     # old params: 70, 5
-    beamDirs, beamAngles = generate_beam_dir_vecs(180, 200, direction_angle=0)
+    beamDirs, beamAngles = generate_beam_dir_vecs(180, 6, direction_angle=0)
     world_bounds = np.array([[1,1],[10,1],[10,10], [1,10]])
     seed = 1234
     num_obs = 10
@@ -25,6 +25,10 @@ def testBeamDataProcessor():
     print(readings)
     print(np.rad2deg(angles))
 
+    # convert readings to cartesian
+    points = bdp.convert_readings_to_cartesian(readings, angles, pos, theta)
+    print(points)
+
     bdv = BeamDataVisualizer()
     bdv.plot_world_with_beams_at_pose_and_contour(bdp, pos, theta, seed, num_obs)
 
@@ -36,7 +40,10 @@ def testBeamDatasetLoader():
     print(y.shape, X.shape)
     print(y[0])
     bdv = BeamDataVisualizer()
-    bdv.plot_world_with_single_position_samples(bdp, y, range(0,5000), seed, num_obs)
+    # bdv.plot_world_with_single_position_samples(bdp, y, range(0,5000), seed, num_obs)
+    # bdv.plot_angle_distribution(y, range(0,5000))
+
+
 
 
 def testBeamDataGenerator():
@@ -63,7 +70,7 @@ def testBeamDataGenerator():
 if __name__ == "__main__":
     # testBeamDataGenerator()
     testBeamDataProcessor()
-    testBeamDatasetLoader()
+    # testBeamDatasetLoader()
 
 
 

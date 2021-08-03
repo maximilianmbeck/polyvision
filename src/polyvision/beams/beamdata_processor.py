@@ -64,3 +64,9 @@ class BeamDataProcessor(object):
         readings = np.linalg.norm(intersects - pos, ord=2, axis=1)
 
         return intersects, readings, self.beam_angles
+
+    def convert_readings_to_cartesian(self, readings, angles, pos, theta):
+        rot_angles = angles+theta
+        dir_vecs = np.transpose(np.array([np.cos(rot_angles), np.sin(rot_angles)]))
+        points = dir_vecs * readings.reshape(-1,1) + pos
+        return points
