@@ -8,7 +8,7 @@ from polyvision.beams.beamdataset_generator import BeamDataProcessor, generate_r
 
 def testBeamDataProcessor():
     # old params: 70, 5
-    beamDirs, beamAngles = generate_beam_dir_vecs(180, 10, direction_angle=0)
+    beamDirs, beamAngles = generate_beam_dir_vecs(180, 200, direction_angle=0)
     world_bounds = np.array([[1,1],[10,1],[10,10], [1,10]])
     seed = 1234
     num_obs = 10
@@ -26,11 +26,17 @@ def testBeamDataProcessor():
     print(np.rad2deg(angles))
 
     bdv = BeamDataVisualizer()
-    bdv.plot_world_with_beams_at_pose(bdp, pos, theta, seed, num_obs)
+    bdv.plot_world_with_beams_at_pose_and_contour(bdp, pos, theta, seed, num_obs)
 
 def testBeamDatasetLoader():
-    dataset, params = load_deltapose_dataset('/home/max/phd/data/slam', 'slam_data_obs_rect10_seed1234')
+    X, y, X_col_angles, params = load_deltapose_dataset('/home/max/phd/data/slam', 'slam_data_obs_rect10_seed1234')
     bdp = BeamDataProcessor.create_from_params(params)
+    seed = params['obstacles_gen']['seed']
+    num_obs = params['obstacles_gen']['num']
+    print(y.shape, X.shape)
+    print(y[0])
+    bdv = BeamDataVisualizer()
+    bdv.plot_world_with_single_position_samples(bdp, y, range(0,5000), seed, num_obs)
 
 
 def testBeamDataGenerator():

@@ -25,8 +25,9 @@ def load_deltapose_dataset(path_to_dataset_folder, dataset_name):
     datasetfile_path = dataset_path / str(dataset_name+'.pickle')
     with datasetfile_path.open(mode='rb') as f:
         dataset = pickle.load(f)
+    X, y, X_col_angles = dataset['X'], dataset['y'], dataset['X_columns']
 
-    return dataset, params
+    return X, y, X_col_angles, params
 
 def generate_deltapose_dataset(datasetsize=None, path_from_home_dir=""):
     params = deltapose_dataset_params

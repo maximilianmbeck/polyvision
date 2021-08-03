@@ -7,11 +7,8 @@ from matplotlib.collections import PatchCollection
 
 
 class BeamDataVisualizer(object):
-    def __init__(self, ax=None):
-        if ax is None:
-            self._fig, self._ax = plt.subplots()
-        else:
-            self._ax = ax
+    def __init__(self):
+        pass
 
     def plot_world(self, beam_data_processor, seed, num_obs):
         self.ax_plot_world(self._ax, beam_data_processor, seed, num_obs)
@@ -45,7 +42,8 @@ class BeamDataVisualizer(object):
         ax.set_title("num_obstacles={0}, seed={1}".format(num_obs, seed))
 
     def plot_pose(self, pos, theta):
-        self.ax_plot_pose(self._ax, pos, theta)
+        fig, ax = plt.subplots()
+        self.ax_plot_pose(ax, pos, theta)
         plt.show()
 
     def ax_plot_pose(self, ax, pos, theta, scale=0.25):
@@ -54,6 +52,7 @@ class BeamDataVisualizer(object):
         angles = np.array([np.deg2rad(0), np.deg2rad(120), np.deg2rad(240)])
         points = np.array([np.cos(angles), np.sin(angles)])
         points = points * scale
+        # points[] # TODO from here
         # transform triangle points to pose
         c = np.cos(theta)
         s = np.sin(theta)
@@ -63,10 +62,10 @@ class BeamDataVisualizer(object):
         points = points.transpose()
         pose_patch = Polygon(points, facecolor="green", zorder=10)
         ax.add_patch(pose_patch)
-        ax.plot(pos[0], pos[1], marker='x', color='red', zorder=10.1, ms=5)
+        ax.plot(pos[0], pos[1], marker='x', color='red', zorder=10.1, ms=20*scale)
         
 
-    def ax_plot_beams_at_pose(self, ax_world, ax_contour, beam_data_processor, pos, theta):
+    def axs_plot_beams_at_pose(self, ax_world, ax_contour, beam_data_processor, pos, theta):
         # plot beams
         (
             intersects,
@@ -80,17 +79,50 @@ class BeamDataVisualizer(object):
                 ax_world.plot(intersects[i, 0], intersects[i, 1], "o", ms=6, color="y")
 
         if ax_contour is not None:
-            ax_contour.plot(angles, readings)
+            ax_contour.plot(np.rad2deg(angles), readings)
+            ax_contour.set_xlabel('angle in deg')
+            ax_contour.set_ylabel('distance')
 
     def plot_world_with_beams_at_pose(self, beam_data_processor, pos, theta, seed, num_obs):
-        self.ax_plot_world_with_beams_at_pose(self._ax, beam_data_processor, pos, theta, seed, num_obs)
+        fig, ax = plt.subplots()
+        self.ax_plot_world_with_beams_at_pose(ax, beam_data_processor, pos, theta, seed, num_obs)
         plt.show()
 
     def ax_plot_world_with_beams_at_pose(self, ax, beam_data_processor, pos, theta, seed, num_obs):
         self.ax_plot_world(ax, beam_data_processor, seed, num_obs)
-        self.ax_plot_beams_at_pose(ax, None, beam_data_processor, pos, theta)
+        self.axs_plot_beams_at_pose(ax, None, beam_data_processor, pos, theta)
         self.ax_plot_pose(ax, pos, theta)
 
+    def plot_world_with_beams_at_pose_and_contour(self, beam_data_processor, pos, theta, seed, num_obs):
+        self.fig, (ax1, ax2) = plt.subplots(2, 1)
+        self.axs_plot_world_with_beams_at_pose_and_contour(ax1, ax2, beam_data_processor, pos, theta, seed, num_obs)
+        plt.show()
+
+    def axs_plot_world_with_beams_at_pose_and_contour(self, ax_world, ax_contour, beam_data_processor, pos, theta, seed, num_obs):
+        self.ax_plot_world(ax_world, beam_data_processor, seed, num_obs)
+        self.axs_plot_beams_at_pose(ax_world, ax_contour, beam_data_processor, pos, theta)
+        self.ax_plot_pose(ax_world, pos, theta)
+
+    ## visualize samples
+    def plot_world_with_single_position_samples(self, beam_data_processor, y, indices, seed, num_obs):
+        fig, (ax0, ax1) = plt.subplots(1,2)
+        self.ax_plot_world(ax0, beam_data_processor, seed, num_obs)
+        self.ax_plot_single_position_samples(ax0, y, indices, first_pose=True)
+        self.ax_plot_world(ax1, beam_data_processor, seed, num_obs)
+        self.ax_plot_single_position_samples(ax1, y, indices, first_pose=False)
+        plt.show()
+
+
+    def ax_plot_single_position_samples(self, ax, y, indices, first_pose=True):
+        if first_pose:
+            pose_index = 1 # row in the sample
+            c = 'b'
+        else:
+            pose_index = 2 # row in the sample
+            c = 'g'
+        for ind in indices:
+            ax.plot(y[indices,pose_index,0], y[indices,pose_index,1], '.', ms=2, color=c)
+        ax.set_title('num_positions_samples={0}'.format(len(indices)))
 
 def generatePolygonPatchCollection(listOfNumpyPolygons, colorV="blue", alphaV=0.4):
     polygons = []
