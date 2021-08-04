@@ -12,9 +12,7 @@ def load_deltapose_dataset(path_to_dataset_folder, dataset_name):
     import json
     import pickle
 
-    print('here')
     dataset_path = Path(path_to_dataset_folder) / dataset_name
-    print(dataset_path.is_dir())
 
     # load params
     params_path = dataset_path / 'params.json'
