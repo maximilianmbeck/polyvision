@@ -1,53 +1,16 @@
 # POLYVISION
 
-Polygon intersection and offsetting operations for visible area calculations
+![Polyvision VisibleArea class demo animation](res/VisibleAreaAnimation.gif)
+
+This package as been developed at [FZI Forschungszentrum Informatik](https://www.fzi.de) and the core of it is used in the [P3IV Simulator](https://p3iv.readthedocs.io/en/latest/). It provides polygon intersection and offsetting operations for visible area calculations.
+
+This version has been developed further such that it not only lets you calculate the visible area, given a field of view polygon and some obstacles, but also simulates a 1D Lidar sensor in a 2D world (see below).
 
 ### [Doxygen documentation](/doxygen/index.html)
 ### [Coverage report](/coverage/index.html)
 
-## Usage of Polyvision C++ Package in Python
-
-The Polyvision package uses internally the CGAL library for polygon intersection and clipping. It calculates the visible area as list of 2D polygons given a field of view (list of 2D polygons) and some obstacles (also list of 2D polygons).  
-Internally a VisibleArea object stores the fieldOfView polygons and the obstacle polygons in lists. The maximum precision for the coordinates of the polygon edges is 6 decimals.
-
-This is how to use this package:
-
-* The visible areas as well as the opaque polygons are passed to the constructor of the VisibleArea class as list of numpy arrays of shape (nx2), where n is the number of points of the polygon
-* The origin is passed to the constructor as numpy array of shape (1x2)
-* After the visible area object has been created, the function *calculateVisibleArea(bool mergeFieldsOfView = true, bool printEachStep = false)* must be called. 
-  * if mergeFieldsOfView = true, there will be only one contiguous visible area returned, otherwise the respective visible areas as a list
-  * if printEachStep = true, the results will be printed on the console
-* Next, the results can be accessed with the getter functions:
-  * py::list getVisibleAreas() const;
-  * py::list getNonVisibleAreas() const;
-  * py::list getCentralProjectedOpaquePolygons() const;
-  * py::list getOpaquePolygons() const;
-  * py::list getFieldsOfView() const;
-  * py::array_t<double> getOrigin() const;
-  * double getRange() const;
-
-Limitations:
-  * The origin must never be inside an opaque polygon.
-
-## Installation
-
-Polyvision requires `CGAL > 5.0`, which is a header only library. The older versions are not header only. 
-
-Assuming you use Ubuntu, you can install its [debian package](https://packages.ubuntu.com/focal/libcgal-dev). Make sure that you have installed its dependecies as well:
-```
-libboost-dev
-libboost-program-options-dev
-libboost-system-dev
-libboost-thread-dev
-libgmp-dev
-libmpfr-dev
-zlib1g-dev
-libmpfi-dev
-libntl-dev
-libtbb-dev
-```
-
-### Example
+## Demo of Polyvision
+### Example VisibleArea class
 In Python:
 
     # origin
@@ -84,4 +47,66 @@ In Python:
 
 Visible area returned in blue and the non-visible area in grey (not the result from example above):
 
-![alt text](res/Polyvision&#32;Demo1.png)
+<img src="res/Polyvision&#32;Demo1.png" alt="drawing" width="400"/>
+
+### Example BeamDataGenerator class
+Output of `scripts/show_beams.py`:
+<img src="res/BeamVisualizationWithOutputData.png" alt="drawing" width="600"/>
+
+## Usage of Polyvision C++ Package in Python
+
+The Polyvision package uses internally the CGAL library for polygon intersection and clipping. It calculates the visible area as list of 2D polygons given a field of view (list of 2D polygons) and some obstacles (also list of 2D polygons).  
+Internally a VisibleArea object stores the fieldOfView polygons and the obstacle polygons in lists. The maximum precision for the coordinates of the polygon edges is 6 decimals.
+
+This is how to use this package:
+
+* The visible areas as well as the opaque polygons are passed to the constructor of the VisibleArea class as list of numpy arrays of shape (nx2), where n is the number of points of the polygon
+* The origin is passed to the constructor as numpy array of shape (1x2)
+* After the visible area object has been created, the function *calculateVisibleArea(bool mergeFieldsOfView = true, bool printEachStep = false)* must be called. 
+  * if mergeFieldsOfView = true, there will be only one contiguous visible area returned, otherwise the respective visible areas as a list
+  * if printEachStep = true, the results will be printed on the console
+* Next, the results can be accessed with the getter functions:
+  * py::list getVisibleAreas() const;
+  * py::list getNonVisibleAreas() const;
+  * py::list getCentralProjectedOpaquePolygons() const;
+  * py::list getOpaquePolygons() const;
+  * py::list getFieldsOfView() const;
+  * py::array_t<double> getOrigin() const;
+  * double getRange() const;
+
+Limitations:
+  * The origin must never be inside an opaque polygon.
+
+## Installation
+
+As this repo presents a catkin package you should have the [catkin_tools](https://catkin-tools.readthedocs.io/en/latest/installing.html) installed. 
+
+For building Polyvision requires the [mrt_cmake_modules](https://github.com/KIT-MRT/mrt_cmake_modules) package, which should be placed also in the `src` folder in the catkin workspace.
+
+After installing the catkin_tools and cloning the mrt_cmake_modules repo your catkin workspace should look like:
+
+```
+├── src                         
+│   ├── mrt_cmake_modules
+│   ├── polyvision
+│   └── ...               # other packages
+│       
+└── .catkin_tools                  
+```
+
+Polyvision requires `CGAL > 5.0`, which is a header only library. The older versions are not header only. 
+
+Assuming you use Ubuntu, you can install its [debian package](https://packages.ubuntu.com/focal/libcgal-dev). Make sure that you have installed its dependecies as well:
+```
+libboost-dev
+libboost-program-options-dev
+libboost-system-dev
+libboost-thread-dev
+libgmp-dev
+libmpfr-dev
+zlib1g-dev
+libmpfi-dev
+libntl-dev
+libtbb-dev
+```
+
