@@ -6,9 +6,6 @@ This package as been developed at [FZI Forschungszentrum Informatik](https://www
 
 This version has been developed further such that it not only lets you calculate the visible area, given a field of view polygon and some obstacles, but also simulates a 1D Lidar sensor in a 2D world (see below).
 
-### [Doxygen documentation](/doxygen/index.html)
-### [Coverage report](/coverage/index.html)
-
 ## Demo of Polyvision
 ### Example VisibleArea class
 In Python:
