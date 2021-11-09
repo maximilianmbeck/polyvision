@@ -55,10 +55,16 @@ Output of `scripts/show_beams.py`:
 
 ## Usage of Polyvision C++ Package in Python
 
-The Polyvision package uses internally the CGAL library for polygon intersection and clipping. It calculates the visible area as list of 2D polygons given a field of view (list of 2D polygons) and some obstacles (also list of 2D polygons).  
-Internally a VisibleArea object stores the fieldOfView polygons and the obstacle polygons in lists. The maximum precision for the coordinates of the polygon edges is 6 decimals.
+A good starting point for using this code are the demo scripts in `/scripts`:
+```
+animate_visible_area.py
+show_beams.py
+```
 
-This is how to use this package:
+The Polyvision package uses internally the CGAL library for polygon intersection and clipping. It calculates the visible area as list of 2D polygons given a field of view (list of 2D polygons) and some obstacles (also list of 2D polygons).  
+Internally a VisibleArea object stores the fieldOfView polygons and the obstacle polygons in lists.
+
+This is how to use the VisibleArea class in this package:
 
 * The visible areas as well as the opaque polygons are passed to the constructor of the VisibleArea class as list of numpy arrays of shape (nx2), where n is the number of points of the polygon
 * The origin is passed to the constructor as numpy array of shape (1x2)
