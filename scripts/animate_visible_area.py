@@ -57,6 +57,7 @@ def testFoVWedge():
     plt.show()
 
 def testAnimation1():
+    import matplotlib.pyplot as plt
     # initialization car
     fov1 = generateFoVWedge(40, 10, directionAngle=0)
     fov2 = generateFoVWedge(140, 4, directionAngle=180)
@@ -73,7 +74,9 @@ def testAnimation1():
     p4 = np.array([[8, 4], [8, 2], [5, 0], [10, 1], [8, -2], [7, -4], [11, -1], [11, 2]])
     p5 = np.array([[-4, 0], [-6, 0], [-6, -1.5]])
     obs = [p1, p2, p3, p4, p5]
-    genericTestAnimation(obs, car)
+    anim_created = genericTestAnimation(obs, car)
+    plt.show()
+    # anim_created.save('VisibleAreaAnimation.gif', writer='imagemagick', fps=40)
 
 
 def testLine():

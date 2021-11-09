@@ -98,14 +98,14 @@ def genericTestAnimation(obstacles, car):
     ani = FuncAnimation(
         fig,
         animate,
-        frames=range(0, 100),
+        frames=range(0, 300),
         init_func=initAnimation,
         blit=False,
         repeat=True,
-        interval=10,
+        interval=1,
     )
 
-    plt.show()
+    return ani
 
 
 def genericTestPlot(obstacles, car):

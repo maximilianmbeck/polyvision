@@ -8,7 +8,7 @@ from polyvision.beams.beamdataset_generator import BeamDataProcessor, generate_r
 
 def testBeamDataProcessor():
     # old params: 70, 5
-    beamDirs, beamAngles = generate_beam_dir_vecs(180, 6, direction_angle=0)
+    beamDirs, beamAngles = generate_beam_dir_vecs(180, 60, direction_angle=0)
     world_bounds = np.array([[1,1],[10,1],[10,10], [1,10]])
     seed = 1234
     num_obs = 10
@@ -71,7 +71,7 @@ def testBeamDataGenerator():
 if __name__ == "__main__":
     # testBeamDataGenerator()
     testBeamDataProcessor()
-    testBeamDatasetLoader()
+    # testBeamDatasetLoader()
 
 
 

@@ -79,7 +79,7 @@ class BeamDataVisualizer(object):
                 ax_world.plot(intersects[i, 0], intersects[i, 1], "o", ms=6, color="y")
 
         if ax_contour is not None:
-            ax_contour.plot(np.rad2deg(angles), readings)
+            ax_contour.plot(np.rad2deg(angles), readings, 'o-')
             ax_contour.set_xlabel('angle in deg')
             ax_contour.set_ylabel('distance')
 
