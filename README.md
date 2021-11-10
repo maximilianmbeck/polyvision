@@ -2,7 +2,7 @@
 
 ![Polyvision VisibleArea class demo animation](res/VisibleAreaAnimation.gif)
 
-This package as been developed at [FZI Forschungszentrum Informatik](https://www.fzi.de) and the core of it is used in the [P3IV Simulator](https://p3iv.readthedocs.io/en/latest/). It provides polygon intersection and offsetting operations for visible area calculations.
+This package has been developed at [FZI Forschungszentrum Informatik](https://www.fzi.de) and the core of it is used in the [P3IV Simulator](https://p3iv.readthedocs.io/en/latest/). It provides polygon intersection and offsetting operations for visible area calculations.
 
 This version has been developed further such that it not only lets you calculate the visible area, given a field of view polygon and some obstacles, but also simulates a 1D Lidar sensor in a 2D world (see below).
 
@@ -86,7 +86,7 @@ As this repo presents a catkin package you should have the [catkin_tools](https:
 
 For building Polyvision requires the [mrt_cmake_modules](https://github.com/KIT-MRT/mrt_cmake_modules) package, which should be placed also in the `src` folder in the catkin workspace.
 
-After installing the catkin_tools and cloning the mrt_cmake_modules repo your catkin workspace should look like:
+After installing the catkin_tools and cloning the mrt_cmake_modules repo your catkin workspace should look as follows:
 
 ```
 ├── src                         
